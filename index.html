@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Verdade ou Farsa — Análise Profissional de Fake News</title>
+
+    <style>
+        :root{
+            --primary-1: #3A7DFF;
+            --primary-2: #6C63FF;
+            --accent: #00C57B;
+            --muted: #F4F6FF;
+            --card-bg: #FFFFFF;
+            --text: #2C2C2C;
+        }
+
+        *{box-sizing:border-box}
+        body {
+            margin: 0;
+            font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            background: var(--muted);
+            color: var(--text);
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
+            line-height:1.6;
+        }
+
+        header{
+            background: linear-gradient(120deg, var(--primary-1), var(--primary-2));
+            color: white;
+            padding: 46px 20px;
+            text-align:center;
+            border-bottom-left-radius:40px;
+            border-bottom-right-radius:40px;
+            box-shadow: 0 10px 30px rgba(54,79,180,0.12);
+        }
+        header h1{margin:0;font-size:34px;font-weight:700}
+        header p{margin:8px 0 0 0; opacity:0.95}
+
+        main{width:92%;max-width:1100px;margin:36px auto 80px auto;}
+
+        section{margin-bottom:30px}
+        h2{color:var(--primary-1);font-size:26px;margin-bottom:12px}
+
+        .card{
+            background:var(--card-bg);
+            padding:20px;
+            border-radius:12px;
+            box-shadow: 0 6px 20px rgba(34,50,99,0.06);
+            margin-bottom:18px;
+            font-size:18px;
+            line-height:1.75;
+            transition: transform .18s ease, box-shadow .18s ease;
+        }
+        .card:hover{transform: translateY(-6px); box-shadow: 0 10px 30px rgba(34,50,99,0.09);}
+
+        /* layout for graphs and quiz */
+        .row{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start}
+        .col{flex:1;min-width:280px}
+        .col.sm{flex:0 0 420px;max-width:420px}
+
+        /* canvas small sizing */
+        canvas{
+            display:block;
+            width:100%;
+            max-width:420px;
+            height:250px !important;
+            border-radius:10px;
+        }
+
+        /* Quiz full styles */
+        #quiz-full{
+            max-width:780px;margin:0 auto;
+        }
+        .quiz-card{
+            background:var(--card-bg);padding:22px;border-radius:12px;box-shadow:0 6px 18px rgba(20,30,80,0.06);
+        }
+        .quiz-question{font-size:20px;font-weight:700;margin-bottom:14px}
+        .quiz-desc{margin-bottom:12px;color:#444}
+
+        .options{display:flex;flex-direction:column;}
+        .option-btn{
+            background:#f1f3ff;border:0;padding:12px 14px;border-radius:10px;margin:8px 0;cursor:pointer;font-size:15px;text-align:left;
+            transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+        }
+        .option-btn:hover{transform: translateY(-3px); box-shadow:0 8px 20px rgba(58,125,255,0.08)}
+        .option-correct{background:#dff7e6 !important}
+        .option-wrong{background:#ffd6d6 !important;opacity:0.95}
+
+        .progress-wrap{height:12px;background:#e7e7ee;border-radius:10px;overflow:hidden;margin-top:18px}
+        .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--primary-1),var(--primary-2));transition:width .35s ease}
+
+        .controls{display:flex;gap:12px;margin-top:18px;align-items:center}
+        .btn{
+            padding:12px 16px;border-radius:10px;border:0;cursor:pointer;font-weight:700;
+        }
+        .btn.primary{background:linear-gradient(90deg,var(--primary-1),var(--primary-2));color:white}
+        .btn.ghost{background:transparent;border:1px solid #d7d7e8;color:#333}
+
+        .score{font-size:18px;font-weight:700;margin-top:14px}
+
+        footer{
+            text-align:center;background:linear-gradient(120deg,var(--primary-1),var(--primary-2));
+            color:white;padding:18px 14px;border-top-left-radius:30px;border-top-right-radius:30px;margin-top:40px;
+        }
+
+        /* small screens tweaks */
+        @media (max-width:760px){
+            header h1{font-size:22px}
+            .col.sm{flex:1 1 100%}
+            canvas{height:220px !important}
+        }
+
+        /* small styling for review blocks */
+        .review-wrapper { border-top:1px solid #eee; padding:12px 0; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Verdade ou Farsa — Análise Profissional de Fake News</h1>
+    <p>Plataforma completa de conscientização, educação e prevenção contra desinformação.</p>
+</header>
+
+<main>
+    <section>
+        <h2>O que são Fake News?</h2>
+        <div class="card">
+            Fake news são conteúdos falsos ou distorcidos apresentados como se fossem verdadeiros, 
+            geralmente criados com a intenção de manipular percepções, influenciar opiniões, 
+            provocar confusão ou gerar engajamento rápido nas redes sociais. 
+            Esses conteúdos podem surgir em diferentes formatos, como textos, imagens manipuladas, 
+            vídeos editados, áudios fabricados e até mesmo postagens aparentemente inofensivas que, 
+            quando replicadas em grande escala, ganham aparência de verdade. Além disso, as fake news 
+            são amplificadas por algoritmos que priorizam conteúdos virais, independentemente de sua veracidade.  
+            Outro fator que contribui para sua expansão é o comportamento humano: muitas pessoas compartilham 
+            informações sem checar sua origem, motivadas por medo, indignação ou simples impulso. 
+            As fake news podem gerar consequências graves, como prejudicar campanhas de vacinação, 
+            influenciar resultados eleitorais, causar pânico em comunidades, destruir reputações e 
+            comprometer a segurança pública. Estudos recentes mostram que notícias falsas se espalham 
+            até seis vezes mais rápido do que notícias verdadeiras, justamente por explorarem emoções intensas.  
+            Por isso, compreender como elas surgem e por que se espalham é fundamental para reduzir seus impactos.  
+            A educação midiática e o hábito de verificar fontes são estratégias essenciais para combater a 
+            circulação desse tipo de conteúdo em ambientes digitais.
+        </div>
+    </section>
+
+    <section>
+        <h2>Por que surgem as Fake News?</h2>
+        <div class="card">
+            As fake news surgem por uma combinação de fatores sociais, tecnológicos e psicológicos. 
+            Em muitos casos, são produzidas por grupos que desejam manipular debates públicos, influenciar 
+            decisões coletivas ou prejudicar adversários políticos. Além disso, existe um mercado lucrativo 
+            por trás da desinformação: quanto mais compartilhamentos e visualizações um conteúdo recebe, 
+            maior é o retorno financeiro para quem o publicou, principalmente em plataformas que monetizam engajamento.  
+            Outro elemento importante é a ausência de verificação: muitos usuários não confirmam a autenticidade 
+            de uma notícia antes de compartilhá-la. Isso cria uma cadeia de desinformação impulsionada pela velocidade 
+            com que conteúdos circulam nas redes sociais. Em termos psicológicos, fake news costumam explorar emoções 
+            fortes como medo, raiva e indignação, fazendo com que as pessoas reajam impulsivamente e compartilhem 
+            sem refletir. Além disso, existem os chamados vieses de confirmação: indivíduos tendem a acreditar em 
+            informações que reforçam suas crenças pré-existentes, mesmo que sejam falsas.  
+            Tecnologicamente, algoritmos de recomendação também desempenham papel importante, pois priorizam conteúdos 
+            que geram engajamento, não aqueles que são necessariamente verdadeiros. Esse conjunto de fatores transforma 
+            as fake news em um fenômeno complexo, que exige soluções múltiplas: educação digital, políticas de checagem, 
+            regulamentações mais sólidas e plataformas tecnológicas mais responsáveis.
+        </div>
+    </section>
+
+    <section>
+        <h2>Exemplos Reais de Fake News (Explicações Profissionais)</h2>
+
+        <div class="card">
+            <strong>Exemplo Real 1 — Fake news sobre vacinas e magnetismo</strong><br><br>
+            Um dos boatos mais virais dos últimos anos afirmava que pessoas se tornavam "magnéticas" após 
+            receber vacinas. Vídeos nas redes sociais mostravam moedas e objetos metálicos supostamente 
+            grudando no braço de indivíduos, levando milhões de pessoas a acreditarem que o imunizante 
+            possuía substâncias magnetizantes. Agências de checagem como Agência Lupa, AFP Checamos e 
+            Estadão Verificam analisaram cuidadosamente esses casos e concluíram que se tratava de um 
+            conteúdo totalmente falso.  
+            Cientistas explicaram que nenhum dos componentes das vacinas tinha qualquer propriedade 
+            magnética e que os vídeos eram resultado de truques simples, suor na pele ou edição digital.  
+            Apesar disso, o boato causou danos reais: muitas pessoas passaram a desconfiar da vacinação, 
+            espalhando ainda mais desinformação em grupos de WhatsApp e redes sociais.  
+            Esse caso demonstra como boatos sobre saúde conseguem alcançar grande repercussão, principalmente 
+            quando exploram inseguranças da população. O episódio reforça a importância de procurar informações 
+            em fontes científicas e oficiais antes de acreditar ou compartilhar qualquer conteúdo sensacionalista.
+        </div>
+
+        <div class="card">
+            <strong>Exemplo Real 2 — Vídeo falso sobre urnas eletrônicas fraudadas</strong><br><br>
+            Durante períodos eleitorais, diversos vídeos circularam mostrando urnas eletrônicas "votando 
+            sozinhas" ou desviando votos automaticamente para determinados candidatos. Um dos casos mais 
+            famosos mostrava uma urna registrando votos sem que ninguém tocasse nela. Rapidamente, o vídeo 
+            viralizou e foi compartilhado por milhões de usuários.  
+            No entanto, especialistas do Tribunal Superior Eleitoral (TSE) analisaram o vídeo e comprovaram 
+            que se tratava de uma montagem, possivelmente criada com sobreposição de vídeos e edições digitais.  
+            Além disso, perícias independentes confirmaram que as urnas brasileiras não possuem conexão com a 
+            internet e não podem ser acessadas remotamente, o que reforça a impossibilidade de manipulação externa.  
+            Esse caso exemplifica como vídeos fabricados podem comprometer a confiança pública em instituições 
+            democráticas. A desinformação eleitoral é uma das categorias mais perigosas de fake news, já que interfere 
+            diretamente no processo democrático. Após a análise oficial, o vídeo foi removido de várias plataformas, 
+            mas os danos já haviam sido causados: muitas pessoas continuaram acreditando no conteúdo falso.
+        </div>
+
+        <div class="card">
+            <strong>Exemplo Real 3 — Boatos sobre morte de celebridades</strong><br><br>
+            Notícias falsas sobre supostas mortes de artistas se tornaram extremamente comuns, especialmente 
+            em páginas e perfis que buscam engajamento rápido. Um exemplo amplamente divulgado envolveu um ator 
+            brasileiro muito conhecido, que supostamente havia falecido após um acidente. Diversos sites não 
+            confiáveis publicaram manchetes sensacionalistas afirmando que familiares teriam confirmado a morte.  
+            Poucas horas depois, o próprio ator precisou se pronunciar nas redes sociais para informar que estava 
+            vivo e saudável, desmentindo o boato.  
+            Esse tipo de fake news é criado com o objetivo de gerar cliques e tráfego, pois notícias sobre celebridades 
+            têm grande potencial viral. O caso evidencia como informações inventadas podem causar pânico entre fãs, 
+            afetar emocionalmente familiares do artista e até prejudicar sua imagem profissional.  
+            Foi constatado que as postagens falsas vinham de sites que utilizam títulos chocantes para atrair visitantes, 
+            prática conhecida como clickbait. Ao acessar essas páginas, usuários são direcionados a anúncios, gerando lucro 
+            para os criadores da notícia falsa.  
+            Esse exemplo reforça a necessidade de verificar a fonte antes de acreditar em informações de grande impacto.
+        </div>
+    </section>
+
+    <section>
+        <div class="row">
+            <div class="col sm">
+                <h2>Gráfico — Categorias Mais Frequentes de Fake News</h2>
+                <div class="card" style="text-align:center;">
+                    <canvas id="grafCategorias"></canvas>
+                    <div style="font-size:14px;color:#555;margin-top:6px">Fonte: tendências de estudos e relatórios publicados sobre desinformação.</div>
+                </div>
+            </div>
+
+            <div class="col sm">
+                <h2>Gráfico — Alcance Médio de Fake News (estimado)</h2>
+                <div class="card" style="text-align:center;">
+                    <canvas id="grafAlcance"></canvas>
+                    <div style="font-size:14px;color:#555;margin-top:6px">Valores aproximados para ilustrar padrão de alcance.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- QUIZ COMPLETO (10 perguntas) -->
+    <section id="quiz-full">
+        <h2>Quiz — Teste seu conhecimento</h2>
+        <div class="quiz-card card">
+            <div class="quiz-desc">
+                Responda às perguntas abaixo com atenção. No final você receberá sua pontuação. Não tem limite de tempo — pense e escolha com calma.
+            </div>
+
+            <div id="quiz-area">
+                <div id="questionBlock">
+                    <div id="questionNumber" style="color:#666;font-weight:700;margin-bottom:6px">Pergunta 1 de 10</div>
+                    <div id="questionText" class="quiz-question">Carregando pergunta...</div>
+
+                    <div id="options" class="options" aria-live="polite"></div>
+
+                    <div class="progress-wrap" aria-hidden="false" style="margin-top:18px">
+                        <div id="progressFill" class="progress-fill" style="width:0%"></div>
+                    </div>
+
+                    <div class="controls" style="justify-content:flex-end">
+                        <button id="nextBtn" class="btn primary" disabled style="display:none">Próxima</button>
+                        <button id="skipBtn" class="btn ghost" style="display:none">Pular</button>
+                    </div>
+                </div>
+
+                <div id="resultBlock" style="display:none">
+                    <div class="score" id="finalScore">Você acertou X de 10</div>
+                    <div style="margin-top:12px;color:#444" id="finalMessage"></div>
+                    <div style="margin-top:18px">
+                        <button id="restartBtn" class="btn primary">Jogar de novo</button>
+                        <button id="reviewBtn" class="btn ghost">Rever respostas</button>
+                    </div>
+                    <div id="reviewArea" style="margin-top:16px;display:none"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer>
+    Desenvolvido por Rafa • Plataforma Educacional Contra Fake News
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    /* ========== GRÁFICOS ========== */
+    const categoriasCtx = document.getElementById('grafCategorias').getContext('2d');
+    const alcanceCtx = document.getElementById('grafAlcance').getContext('2d');
+
+    new Chart(categoriasCtx, {
+        type: 'pie',
+        data: {
+            labels: ["Política", "Saúde", "Celebridades", "Ciência", "Economia", "Segurança"],
+            datasets: [{
+                data: [38, 27, 14, 9, 7, 5],
+                backgroundColor: ["#6C63FF", "#3A7DFF", "#00C57B", "#FF914D", "#FFC145", "#FF5F5F"],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    new Chart(alcanceCtx, {
+        type: 'bar',
+        data: {
+            labels: ["Vacinas", "Política", "Celebridades", "Ciência", "Economia"],
+            datasets: [{
+                label: "Alcance estimado (em milhões)",
+                data: [3.2, 5.8, 2.5, 1.4, 1.9],
+                backgroundColor: "#3A7DFF",
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive:true,
+            maintainAspectRatio:false,
+            scales: {
+                y: { beginAtZero:true }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    /* ========== QUIZ (10 perguntas) ========== */
+    const quizData = [
+        {
+            pergunta: "As fake news se espalham mais rápido porque apelam para emoções fortes?",
+            opcoes: [
+                {texto: "Sim, isso aumenta o compartilhamento impulsivo.", correta: true},
+                {texto: "Não, é só por causa dos algoritmos.", correta: false}
+            ],
+            explicacao: "Emoções fortes (medo, raiva, surpresa) aumentam a propensão de compartilhamento, o que acelera a propagação."
+        },
+        {
+            pergunta: "Montagens de imagens e edições simples podem enganar muitas pessoas.",
+            opcoes: [
+                {texto: "Verdadeiro", correta: true},
+                {texto: "Falso", correta: false}
+            ],
+            explicacao: "Imagens manipuladas são uma forma comum de desinformação; verificar origem e metadados ajuda a identificar fraudes."
+        },
+        {
+            pergunta: "Um título sensacionalista sozinho já é um sinal de alerta para fake news?",
+            opcoes: [
+                {texto: "Sim, títulos exagerados costumam buscar cliques.", correta: true},
+                {texto: "Não, títulos exagerados não significam necessariamente que a notícia é falsa.", correta: false}
+            ],
+            explicacao: "Embora nem todo título sensacionalista indique falsidade, é um sinal que pede checagem da fonte antes de confiar."
+        },
+        {
+            pergunta: "Qual a melhor prática para checar uma informação duvidosa?",
+            opcoes: [
+                {texto: "Pesquisar a notícia em fontes confiáveis independentes.", correta: true},
+                {texto: "Confiar em compartilhamentos de várias pessoas desconhecidas.", correta: false},
+                {texto: "Buscar só pela imagem sem considerar contexto.", correta: false}
+            ],
+            explicacao: "Verificar em múltiplas fontes confiáveis e checagens de fatos reduz as chances de acreditar em desinformação."
+        },
+        {
+            pergunta: "Vídeos que mostram pessoas dizendo algo que parecem verdadeiros nunca são falsos.",
+            opcoes: [
+                {texto: "Verdadeiro", correta: false},
+                {texto: "Falso", correta: true}
+            ],
+            explicacao: "Deepfakes e edições podem fazer pessoas parecerem dizer coisas que não disseram; analisar origem e especialistas é importante."
+        },
+        {
+            pergunta: "Compartilhar uma notícia sem ler o conteúdo completo contribui para espalhar fake news.",
+            opcoes: [
+                {texto: "Sim, compartilhar sem checar é perigoso.", correta: true},
+                {texto: "Não, só o título basta para entender.", correta: false}
+            ],
+            explicacao: "Títulos podem enganar; ler e checar antes de compartilhar é essencial para reduzir a circulação de boatos."
+        },
+        {
+            pergunta: "Uma notícia repostada por muitas pessoas é automaticamente verdadeira.",
+            opcoes: [
+                {texto: "Sim", correta: false},
+                {texto: "Não", correta: true}
+            ],
+            explicacao: "Viralidade não é sinônimo de veracidade — boatos também viralizam."
+        },
+        {
+            pergunta: "Quais motivos levam à produção de fake news?",
+            opcoes: [
+                {texto: "Motivações políticas, lucro por cliques e engajamento, e manipulação social.", correta: true},
+                {texto: "Apenas erros honestos de quem escreve.", correta: false}
+            ],
+            explicacao: "Perfis maliciosos buscam manipular audiência, e o modelo econômico das plataformas pode incentivar conteúdo sensacionalista."
+        },
+        {
+            pergunta: "Verificar a data da publicação pode ajudar a identificar notícias fora de contexto.",
+            opcoes: [
+                {texto: "Sim", correta: true},
+                {texto: "Não", correta: false}
+            ],
+            explicacao: "Matérias antigas podem ser recicladas como se fossem atuais; checar datas evita equívocos."
+        },
+        {
+            pergunta: "A melhor forma de combater fake news é: pesquisar em fontes confiáveis e checar antes de compartilhar?",
+            opcoes: [
+                {texto: "Sim, essa é uma das principais medidas.", correta: true},
+                {texto: "Não, não adianta checar.", correta: false}
+            ],
+            explicacao: "Educação midiática e checagem são estratégias essenciais para reduzir os impactos da desinformação."
+        }
+    ];
+
+    let current = 0;
+    let score = 0;
+    let answersRecord = [];
+
+    const questionNumberEl = document.getElementById('questionNumber');
+    const questionTextEl = document.getElementById('questionText');
+    const optionsEl = document.getElementById('options');
+    const nextBtn = document.getElementById('nextBtn');
+    const skipBtn = document.getElementById('skipBtn');
+    const progressFill = document.getElementById('progressFill');
+    const resultBlock = document.getElementById('resultBlock');
+    const questionBlock = document.getElementById('questionBlock');
+    const finalScoreEl = document.getElementById('finalScore');
+    const finalMessageEl = document.getElementById('finalMessage');
+    const restartBtn = document.getElementById('restartBtn');
+    const reviewBtn = document.getElementById('reviewBtn');
+    const reviewArea = document.getElementById('reviewArea');
+
+    function renderQuestion(){
+        const q = quizData[current];
+        questionNumberEl.innerText = `Pergunta ${current+1} de ${quizData.length}`;
+        questionTextEl.innerText = q.pergunta;
+
+        optionsEl.innerHTML = '';
+        q.opcoes.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.type = 'button';
+            btn.innerText = opt.texto;
+            btn.onclick = () => selectOption(btn, idx, opt.correta);
+            optionsEl.appendChild(btn);
+        });
+
+        // disable next until selection, and hide it
+        nextBtn.disabled = true;
+        nextBtn.style.display = 'none';
+
+        // update progress (percentage of completed questions)
+        const prog = (current / quizData.length) * 100;
+        progressFill.style.width = prog + '%';
+    }
+
+    function selectOption(btn, idx, correta){
+        // disable all option buttons
+        document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+
+        // mark correct/incorrect
+        if(correta){
+            btn.classList.add('option-correct');
+            score++;
+        } else {
+            btn.classList.add('option-wrong');
+            // highlight correct one
+            const q = quizData[current];
+            const allButtons = Array.from(document.querySelectorAll('.option-btn'));
+            for(let i=0;i<q.opcoes.length;i++){
+                if(q.opcoes[i].correta){
+                    allButtons[i].classList.add('option-correct');
+                }
+            }
+        }
+
+        // save answer for review
+        answersRecord.push({
+            pergunta: quizData[current].pergunta,
+            escolhas: quizData[current].opcoes.map(o=>o.texto),
+            corretaIndex: quizData[current].opcoes.findIndex(o=>o.correta),
+            chosenIndex: idx,
+            explicacao: quizData[current].explicacao || ''
+        });
+
+        nextBtn.disabled = false;
+        nextBtn.style.display = 'inline-block';
+    }
+
+    nextBtn.addEventListener('click', () => {
+        current++;
+        if(current < quizData.length){
+            renderQuestion();
+        } else {
+            finishQuiz();
+        }
+    });
+
+    function finishQuiz(){
+        // hide question block, show results
+        questionBlock.style.display = 'none';
+        resultBlock.style.display = 'block';
+        finalScoreEl.innerText = `Você acertou ${score} de ${quizData.length} perguntas.`;
+        // message
+        let msg = '';
+        const pct = (score / quizData.length) * 100;
+        if(pct === 100) msg = "Perfeito — você reconhece bem os sinais de desinformação.";
+        else if(pct >= 70) msg = "Ótimo — você tem bom senso crítico, mas continue praticando a checagem.";
+        else if(pct >= 40) msg = "Tá no caminho — revise práticas de verificação e atenção a fontes.";
+        else msg = "Cuidado — pratique mais checagem de fontes e análise crítica antes de compartilhar.";
+
+        finalMessageEl.innerText = msg;
+
+        // ensure progress bar shows 100% on finish
+        progressFill.style.width = '100%';
+    }
+
+    restartBtn.addEventListener('click', () => {
+        // reset all
+        current = 0; score = 0; answersRecord = [];
+        questionBlock.style.display = 'block';
+        resultBlock.style.display = 'none';
+        reviewArea.style.display = 'none';
+        reviewArea.innerHTML = '';
+        renderQuestion();
+        progressFill.style.width = '0%';
+    });
+
+    reviewBtn.addEventListener('click', () => {
+        // toggle review area visibility
+        const willShow = reviewArea.style.display === 'none' || reviewArea.style.display === '';
+        reviewArea.style.display = willShow ? 'block' : 'none';
+
+        if(willShow){
+            // build review
+            reviewArea.innerHTML = '';
+            if(answersRecord.length === 0){
+                reviewArea.innerHTML = '<div style="color:#666">Nenhuma resposta registrada ainda.</div>';
+                return;
+            }
+            answersRecord.forEach((r, i) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'review-wrapper';
+
+                const qTitle = document.createElement('div');
+                qTitle.style.fontWeight = '700';
+                qTitle.innerText = `Q${i+1}. ${r.pergunta}`;
+                wrapper.appendChild(qTitle);
+
+                const list = document.createElement('div');
+                list.style.marginTop = '8px';
+                r.escolhas.forEach((opt, j) => {
+                    const span = document.createElement('div');
+                    span.style.marginTop = '6px';
+                    span.innerText = (j === r.corretaIndex ? '✔ ' : (j === r.chosenIndex ? '✖ ' : '• ')) + opt;
+                    if(j === r.corretaIndex) span.style.color = '#0a9e4a';
+                    if(j === r.chosenIndex && j !== r.corretaIndex) span.style.color = '#d23a3a';
+                    list.appendChild(span);
+                });
+                wrapper.appendChild(list);
+
+                const exp = document.createElement('div');
+                exp.style.marginTop = '8px';
+                exp.style.color = '#555';
+                exp.innerHTML = `<em>Explicação:</em> ${r.explicacao || '—'}`;
+                wrapper.appendChild(exp);
+
+                reviewArea.appendChild(wrapper);
+            });
+        }
+    });
+
+    // initialize
+    renderQuestion();
+</script>
+
+</body>
+</html>
